@@ -13,14 +13,18 @@
                 e.preventDefault();
                 
                 var $form = $(this);
+                
+                var $submit = $form.find('[type=submit]'); //버튼 중복클릭 방지
+                $submit.prop('disabled', true);
+
                 var url = $form.attr('action');
                 var data = $form.serialize(); //url ecoded된 문자열데이타 "csrflskdfjkjk=13lkjfl & message=입력값"
-
-                $.post(url, data)
+    
+                    $.post(url, data)
                     .done(function(obj){
                         console.log("-----done-------")
                         console.log(obj);
-                        
+
                         if (obj.is_success === false) {
                             alert(obj.message);
                         }
@@ -31,7 +35,10 @@
                     })
                     .fail(function(xhr, textStatus, error){
                         alert('failed: ' + error);
-                    });
+                    })
+                    .always(function() {
+                        $submit.prop('disabled', false);
+                    });           
             });
 
             $(document).on('click', '.ajax-post-confirm', function(e){
