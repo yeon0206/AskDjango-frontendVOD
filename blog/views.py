@@ -5,8 +5,13 @@ from .models import Post, Comment
 
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/index.html'
-    paginate_by = 10
+    paginate_by = 5
+
+    def get_template_names(self):
+        if self.request.is_ajax(): #현재 요청이 ajax 이냐? 참거짓 리턴
+            return ['blog/_post_list.html']
+        return ['blog/index.html']
+
 index = PostListView.as_view()
 # index = ListView.as_view(model=Post, template_name='blog/index.html', paginate_by=5)
 
