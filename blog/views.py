@@ -3,8 +3,12 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView,UpdateView,DeleteView
 from .models import Post, Comment
 
-
-index = ListView.as_view(model=Post, template_name='blog/index.html')
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/index.html'
+    paginate_by = 10
+index = PostListView.as_view()
+# index = ListView.as_view(model=Post, template_name='blog/index.html', paginate_by=5)
 
 post_new = CreateView.as_view(model=Post, fields='__all__')
 
@@ -16,7 +20,6 @@ class PostDeleteView(DeleteView):
     model = Post
     success_url = reverse_lazy('blog:index')
 post_delete = PostDeleteView.as_view()
-
 # post_delete = DeleteView.as_view(model=Post, success_url=reverse_lazy('blog:index'))
 
 class CommentCreateView(CreateView):
