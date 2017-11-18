@@ -1,4 +1,4 @@
-<table class="table table-bordered table-hover">
+{% comment %} <table class="table table-bordered table-hover">
     <tbody>
         {% for post in post_list %}
             <tr>
@@ -29,4 +29,14 @@
 
 <a id="page-2-btn" href="#">2페이지 로딩</a>
 
-<a href="{% url "blog:post_new" %}" class="btn btn-primary">새 글쓰기</a>
+<a href="{% url "blog:post_new" %}" class="btn btn-primary">새 글쓰기</a> {% endcomment %}
+
+{% for post in post_list %}
+    <tr>
+        <td>
+            <a href="{{ post.get_absolute_url }}">
+                {{ post.title }}
+            </a>
+        </td>    
+    </tr>
+{% endfor %}
