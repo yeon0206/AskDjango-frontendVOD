@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from . import views
 urlpatterns=[
     url(r'^$', views.index, name='index'),
@@ -11,5 +11,7 @@ urlpatterns=[
     url(r'^(?P<post_pk>\d+)/comments/(?P<pk>\d+)/edit/$', views.comment_edit, name='comment_edit'),
     url(r'^(?P<post_pk>\d+)/comments/(?P<pk>\d+)/delete/$', views.comment_delete, name='comment_delete'),
 
-    url(r'^posts\.json$', views.post_list_json),
+    url(r'^posts\.json$', views.post_list_json), # 직렬화 테스트
+
+    url(r'^api/v1/', include('blog.api')),
 ]
