@@ -1,23 +1,32 @@
 {% load thumbnail %}
 
 
-<li id="comment-{{ comment.pk }}"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
-    
+<div id="comment-{{ comment.pk }}" class="media"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
     {% if comment.photo %}
-        <img src="{% thumbnail comment.photo 100x100 crop %}" />
+    <div class="media-left">
+        <a href="#">
+            <img src="{% thumbnail comment.photo 100x100 crop %}" class="media-object" />
+        </a>
+    </div>
     {% endif %}
-
-    {{ comment.message }}
-    &dash;
-    <a href="{% url "blog:comment_edit" comment.post.pk comment.pk %}"
-        class="comment-form-btn" data-target-id="comment-{{ comment.pk }}">
-        <small>{{ comment.updated_at }}</small>
-    </a>
     
-    <a href="{% url "blog:comment_delete" comment.post.pk comment.pk %}"
-        class="ajax-post-confirm"
-        data-target-id="comment-{{ comment.pk }}"
-        data-message="정말 삭제하시겠습니까?">
-        <small>삭제</small>
-    </a>
-</li>
+    <div class="media-body">
+        {% comment %} <h4 class="media-heading">Media heading</h4> {% endcomment %}
+        <p>{{ comment.message }}</p>
+        &dash;
+        <a href="{% url "blog:comment_edit" comment.post.pk comment.pk %}"
+            class="comment-form-btn" data-target-id="comment-{{ comment.pk }}">
+            <small>{{ comment.updated_at }}</small>
+        </a>
+        
+        <a href="{% url "blog:comment_delete" comment.post.pk comment.pk %}"
+            class="ajax-post-confirm"
+            data-target-id="comment-{{ comment.pk }}"
+            data-message="정말 삭제하시겠습니까?">
+            <small>삭제</small>
+        </a>
+    </div>
+</div>    
+
+
+    
