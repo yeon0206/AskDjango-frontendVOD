@@ -107,6 +107,16 @@ class CommentDeleteView(DeleteView):
 
 comment_delete = CommentDeleteView.as_view()
 
+
+class CommentListView(ListView):
+    model = Comment
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.filter(post__id=self.kwargs['post_pk'])
+        return qs
+comment_list = CommentListView.as_view()
+
 # 1) Json 직렬화 직접구현
 # def post_list_json(request):
 #     qs = Post.objects.all()
