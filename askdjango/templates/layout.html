@@ -26,11 +26,11 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if not user.is_authenticated %}
-                        <li><a href="{% url "login" %}?next={{ request.path }}">로그인</a></li>
-                        <li><a href="{% url "signup" %}">회원가입</a></li>
+                        <li><a href="{% url "login" %}"?next={{ request.path }}modal"comment-form-btn">로그인</a></li>
+                        <li><a href="{% url "signup" %}">회원가입</a></li> 
                     {% else %}
                         <li><a href="{% url "profile" %}">프로필</a></li>
-                        <li><a href="{% url "logout" %}?next={{ request.path }}">로그아웃</a></li>
+                        <li><a href="{% url "logout" %}"?next={{ request.path }}>로그아웃</a></li>
                     {% endif %}
                 </ul>
             </div><!--/.nav-collapse -->
@@ -57,5 +57,119 @@
         때문에, 파일전송은 불가합니다 따라서 파일업로드 라이브러리 사용-->
     {% block extra_body %}
     {% endblock %}
-</body>
+    <script>
+        $(function() {
+            $(document).on('click', '.modal-form-btn', function(e){
+                e.preventDefault();
+
+                var action_url = $(this).attr('href');
+                var target_id = $(this).data('target-id');
+
+                $.get(action_url)
+                    .done(function(form_html) {
+                        var $modal = $('#modal-form-modal');
+                        $modal.find('.modal-body').html(form_html);
+                        $form = $modal.find('.modal-body form');
+                        $form.attr('action', action_url);
+
+                        if ( target_id ) {
+                            $form.attr('data-target-id', target_id); // modal form에 data-target-id를 기록
+                        }
+                        else {
+                            $form.removeData('target-id'); // modal창이 뜰때마다 form태그가 새로이 지정되어서 불필요
+                        }
+
+                        $modal.on('shown.bs.modal', function(e) {
+                            $(this).find('textarea:first').focus();
+                        });
+                            
+                        $modal.modal();
+                    })
+                    .fail(function(xhr, textStatus, error ) {
+                        alert('failed : ' + error );
+                    });
+            });
+
+            $(document).on('submit', '#modal-form-modal form', function(e) {
+                e.preventDefault();
+                
+                var $form = $(this);
+                
+                var $submit = $form.find('[type=submit]'); //버튼 중복클릭 방지
+                $submit.prop('disabled', true);
+
+                $form.ajaxSubmit({
+                    success: function(response, statusText, xhr, $form) {
+                        var html = response;
+
+                        var $resp = $(html);
+                        var target_id = $form.data('target-id');
+
+                        if ( $resp.find('.has-error').length >0 ) {
+                            // validation 에러일 경우, 에러 HTML 응답
+                            // form 태그의 속성정보는 그대로 유지하고, 필드 HTML만 변경
+                            var fields_html = $resp.html();
+                            $('#modal-form-modal .modal-body form').html(fields_html);
+                        }
+                        else {
+                            if ( target_id ) {
+                                $('#' + target_id).html($resp.html());
+                            }
+                            else {
+                                $resp.prependTo('#comment-list');
+                            }
+
+                            $('#modal-form-modal').modal('hide');
+                            $form[0].reset();
+                        }
+                    },
+                    error: function(xhr, textStatus, error) {
+                        alert('failed: ' + error);
+                    },
+                    complete: function(xhr, textStatus) {
+
+                    }
+                });
+            });
+
+            $(document).on('click', '.ajax-post-confirm', function(e){
+                e.preventDefault();
+                
+                var url = $(this).attr('href');
+                var target_id = $(this).data('target-id');
+                var message = $(this).data('message');
+
+                if (confirm(message)) {
+                    $.post(url)
+                        .done(function(){
+                            $('#' + target_id).remove();
+                        })
+                        .fail(function(xhr, textStatus, error){
+                            alert('failed : ' + error);
+                        });
+                }
+            });
+
+        });
+    </script>
+    <!--STEP #4) Bootstrap4 Modal을 통한 댓글 쓰기-->
+    <div class="modal fade" id="modal -form-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Comment Form</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ...<br/>
+                        ...<br/>
+                        ...<br/>
+                        ...<br/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
