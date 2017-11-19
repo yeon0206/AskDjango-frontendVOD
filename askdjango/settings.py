@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'blog',
+    'mychart', #Chart JS 구현
 ]
 
 MIDDLEWARE = [
