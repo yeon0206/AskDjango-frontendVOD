@@ -26,11 +26,11 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if not user.is_authenticated %}
-                        <li><a href="{% url "login" %}"?next={{ request.path }}modal"comment-form-btn">로그인</a></li>
-                        <li><a href="{% url "signup" %}">회원가입</a></li> 
+                        <li><a href="{% url "login" %}?next={{ request.path }}" class="modal-form-btn">로그인</a></li>
+                        <li><a href="{% url "signup" %}" class="modal-form-btn">회원가입</a></li> 
                     {% else %}
                         <li><a href="{% url "profile" %}">프로필</a></li>
-                        <li><a href="{% url "logout" %}"?next={{ request.path }}>로그아웃</a></li>
+                        <li><a href="{% url "logout" %}?next={{ request.path }}">로그아웃</a></li>
                     {% endif %}
                 </ul>
             </div><!--/.nav-collapse -->
@@ -57,6 +57,7 @@
         때문에, 파일전송은 불가합니다 따라서 파일업로드 라이브러리 사용-->
     {% block extra_body %}
     {% endblock %}
+    
     <script>
         $(function() {
             $(document).on('click', '.modal-form-btn', function(e){
@@ -100,6 +101,10 @@
 
                 $form.ajaxSubmit({
                     success: function(response, statusText, xhr, $form) {
+                        if ( response.next_url ) {
+                            window.location = response.next_url;
+                            return;
+                        }
                         var html = response;
 
                         var $resp = $(html);
@@ -153,7 +158,7 @@
         });
     </script>
     <!--STEP #4) Bootstrap4 Modal을 통한 댓글 쓰기-->
-    <div class="modal fade" id="modal -form-modal" tabindex="-1">
+    <div class="modal fade" id="modal-form-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
