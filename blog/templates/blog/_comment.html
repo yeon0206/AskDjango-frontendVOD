@@ -1,7 +1,8 @@
 <li id="comment-{{ comment.pk }}"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
     {{ comment.message }}
     &dash;
-    <a href="{% url "blog:comment_edit" comment.post.pk comment.pk %}">
+    <a href="{% url "blog:comment_edit" comment.post.pk comment.pk %}"
+        class="comment-form-btn" data-target-id="comment-{{ comment.pk }}">
         <small>{{ comment.updated_at }}</small>
     </a>
     
