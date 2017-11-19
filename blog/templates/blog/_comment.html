@@ -1,7 +1,7 @@
 {% load thumbnail %}
 
 
-<div id="comment-{{ comment.pk }}" class="media"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
+<div id="comment-{{ comment.pk }}" class="media comment" data-comment-id="{{ comment.pk }}"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
     {% if comment.photo %}
     <div class="media-left">
         <a href="#">
