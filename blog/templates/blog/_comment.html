@@ -1,4 +1,9 @@
 <li id="comment-{{ comment.pk }}"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
+    
+    {% if comment.photo %}
+        <img src="{{ comment.photo.url }}" style="width: 100px;" />
+    {% endif %}
+
     {{ comment.message }}
     &dash;
     <a href="{% url "blog:comment_edit" comment.post.pk comment.pk %}"
