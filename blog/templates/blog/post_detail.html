@@ -5,11 +5,28 @@
     <script>
         $(function(){
 
-            //언더스코어js 로직
-            var raw_template = $('#comment-template').html(); //문자열로 내용을 다가져온다
-            var tpl = _.template(raw_template); // 가져온 문자열로 언더스코어js 템플릿 생성
+            $(document).on('click', '.comment-form-btn', function(e){
+                e.preventDefault();
 
-            $('#comment-form').submit(function(e){
+                var action_url = $(this).attr('href');
+
+                $.get(action_url)
+                    .done(function(form_html) {
+                        var $modal = $('#comment-form-modal');
+                        $modal.find('.modal-body').html(form_html);
+                        $form = $modal.find('.modal-body form');
+                        $form.attr('action', action_url);
+
+                        $modal.modal();
+                    })
+                    .fail(function(xhr, textStatus, error ) {
+                        alert('failed : ' + error );
+                    });
+
+                //$('#comment-form-modal').modal();
+            });
+
+            $(document).on('submit', '#comment-form-modal form', function(e) {
                 e.preventDefault();
                 
                 var $form = $(this);
@@ -20,17 +37,19 @@
                 var url = $form.attr('action');
                 var data = $form.serialize(); //url ecoded된 문자열데이타 "csrflskdfjkjk=13lkjfl & message=입력값"
     
-                    $.post(url, data)
-                    .done(function(obj){
-                        console.log("-----done-------")
-                        console.log(obj);
-
-                        if (obj.is_success === false) {
-                            alert(obj.message);
+                $.post(url, data)
+                    .done(function(html){
+                        var $resp = $(html);
+                        if ( $resp.find('.has-error').length >0 ) {
+                            // validation 에러일 경우, 에러 HTML 응답
+                            // form 태그의 속성정보는 그대로 유지하고, 필드 HTML만 변경
+                            var fields_html = $resp.html();
+                            $('#comment-form-modal .modal-body form').html(fields_html);
                         }
                         else {
-                            $('#comment-list').prepend(tpl(obj)); 
-                            $form[0].reset(); //[form#comment-form] 폼태그리셋
+                            $resp.prependTo('#comment-list');
+                            $('#comment-form-modal').modal('hide');
+                            $form[0].reset();
                         }
                     })
                     .fail(function(xhr, textStatus, error){
@@ -74,30 +93,14 @@
             
             <hr/>
             
-            <form id="comment-form" action="{% url "blog:comment_new" post.pk %}" method="post"> <!--detail에서 폼을 작성하였지만 다른 url(comment_new)에서 처리를 해줘야함으로 action값을 줌-->
-                {% csrf_token %}
-                {% bootstrap_form comment_form %}
-                <input type="submit" class="btn btn-primary btn-block" />        
-            </form>
             
-            {# <a href="{% url "blog:comment_new" post.pk %}" class="btn btn-primary btn-block">댓글쓰기</a> #}
+            
+            <a href="{% url "blog:comment_new" post.pk %}" 
+                class="comment-form-btn btn btn-primary btn-block">댓글쓰기</a>
 
             <ul id="comment-list">
             {% for comment in post.comment_set.all %}
-                <li id="comment-{{ comment.pk }}"> <!-- HTML5에서는 커스텀 data 속성을 지원한다. -->
-                    {{ comment.message }}
-                    &dash;
-                    <a href="{% url "blog:comment_edit" post.pk comment.pk %}">
-                        <small>{{ comment.updated_at }}</small>
-                    </a>
-                    
-                    <a href="{% url "blog:comment_delete" post.pk comment.pk %}"
-                        class="ajax-post-confirm"
-                        data-target-id="comment-{{ comment.pk }}"
-                        data-message="정말 삭제하시겠습니까?">
-                        <small>삭제</small>
-                    </a>
-                </li>
+                {% include "blog/_comment.html" %}    
             {% endfor %}
             </ul>
             
@@ -110,21 +113,23 @@
 </div>
 
 
-<!--언더스코어 js로 댓글에 끼워넣을 코드-->
-<script type="text/x-template" id="comment-template">
-    <li id="comment-<%= id %>">
-        <%= message %>
-        &dash;
-        <a href="<%= edit_url %>">
-            <small><%= updated_at %></small>
-        </a>
-        <a href="<%= delete_url %>"
-            class="ajax-post-confirm"
-            data-target-id="comment-<%= id %>"
-            data-message="정말 삭제하시겠습니까?">
-            <small>삭제</small>
-        </a>
-    </li>
-</script>
-
+<!--STEP #4) Bootstrap4 Modal을 통한 댓글 쓰기-->
+<div class="modal fade" id="comment-form-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comment Form</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...<br/>
+                ...<br/>
+                ...<br/>
+                ...<br/>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
