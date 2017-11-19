@@ -24,7 +24,7 @@
                         else {
                             $form.removeData('target-id'); // modal창이 뜰때마다 form태그가 새로이 지정되어서 불필요
                         }
-                        
+
                         $modal.on('shown.bs.modal', function(e) {
                             $(this).find('textarea:first').focus();
                         });
@@ -46,11 +46,10 @@
                 var $submit = $form.find('[type=submit]'); //버튼 중복클릭 방지
                 $submit.prop('disabled', true);
 
-                var url = $form.attr('action');
-                var data = $form.serialize(); //url ecoded된 문자열데이타 "csrflskdfjkjk=13lkjfl & message=입력값"
-    
-                $.post(url, data)
-                    .done(function(html){
+                $form.ajaxSubmit({
+                    success: function(response, statusText, xhr, $form) {
+                        var html = response;
+
                         var $resp = $(html);
                         var target_id = $form.data('target-id');
 
@@ -71,13 +70,14 @@
                             $('#comment-form-modal').modal('hide');
                             $form[0].reset();
                         }
-                    })
-                    .fail(function(xhr, textStatus, error){
+                    },
+                    error: function(xhr, textStatus, error) {
                         alert('failed: ' + error);
-                    })
-                    .always(function() {
-                        $submit.prop('disabled', false);
-                    });           
+                    },
+                    complete: function(xhr, textStatus) {
+
+                    }
+                });
             });
 
             $(document).on('click', '.ajax-post-confirm', function(e){
